@@ -5,7 +5,12 @@ import { List } from './List';
 function App() {
   return (
     <div className="App">
-      <List />
+      <List
+        listHeight={460}
+
+        topSlot={<button>TOP BUTTON</button>}
+        bottomSlot={<button>BOTTOM BUTTON</button>}
+        />
     </div>
   );
 }
