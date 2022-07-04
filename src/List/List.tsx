@@ -1,17 +1,12 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 import { ListItem } from './ListItem';
+import { ListProps } from './List.types';
 import './List.css'
 
 const DEFAULT_LIST_HEIGHT = 460
 
 const items = Array.from(Array(1000).keys())
-
-interface ListProps {
-  topSlot?: ReactNode
-  bottomSlot?: ReactNode
-  listHeight?: number
-}
 
 export const List = ({ topSlot, bottomSlot, listHeight }: ListProps) => {
   const withFixedHeight = bottomSlot || listHeight ? true : false

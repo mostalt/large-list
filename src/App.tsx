@@ -7,7 +7,6 @@ function App() {
     <div className="App">
       <List
         listHeight={460}
-
         topSlot={<button>TOP BUTTON</button>}
         bottomSlot={<button>BOTTOM BUTTON</button>}
         />
