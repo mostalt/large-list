@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect, RefObject, useRef } from "react"
 
 const REQ_IDLE_CB_TIMEOUT = 600 as const
 const DEFAULT_TRESHHOLD = 0 as const
@@ -11,40 +11,48 @@ type HookOptions = {
 
 export const useIntersectionObserver = ({
   root = null,
-  rootMargin,
-  threshold = DEFAULT_TRESHHOLD
-}: HookOptions): [
+  rootMargin = '0%',
+  threshold = DEFAULT_TRESHHOLD,
+}: HookOptions):
+  [
+    React.Dispatch<React.SetStateAction<HTMLElement | null>>,
     (null | IntersectionObserverEntry),
-    React.Dispatch<React.SetStateAction<undefined | null | HTMLLIElement>>
   ] => {
-  const [entry, setEntry] = useState<null | IntersectionObserverEntry>(null)
-  const [node, setNode] = useState<null | HTMLLIElement>()
 
-  const observerRef = useRef<null | IntersectionObserver>(null)
+  const [entry, setEntry] =  useState<IntersectionObserverEntry | null>(null)
+  const [node, setNode] = useState<HTMLElement | null>(null);
 
-  useEffect(() => {
-    if (observerRef.current) {
-      observerRef.current.disconnect()
-    }
+  const observer = useRef<IntersectionObserver | null>(null)
 
-    observerRef.current = new IntersectionObserver(([entry]) => {
-      if (typeof window !== "undefined" && window.requestIdleCallback) {
-        window.requestIdleCallback(() => setEntry(entry), { timeout: REQ_IDLE_CB_TIMEOUT })
+  const hasSupport = !!window.IntersectionObserver
+
+  useEffect(
+    () => {
+      if (!hasSupport) {
+        return
       }
-      
-    }, {})
 
-    if (node) {
-      observerRef.current.observe(node)
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect()
+      if (observer.current) {
+        observer.current.disconnect()
       }
-    }
 
-  }, [root, rootMargin, threshold, node])
+      observer.current = new IntersectionObserver(([entry]) => {
+        if (typeof window !== "undefined" && window.requestIdleCallback) {
+          window.requestIdleCallback(() => setEntry(entry), { timeout: REQ_IDLE_CB_TIMEOUT })
+        }
+        
+      }, { threshold, root, rootMargin })
 
-  return [entry, setNode]
+      if (node) observer.current.observe(node);
+
+      return () => {
+        if (observer.current) {
+          observer.current.disconnect();
+        }
+      }
+    },
+    [node, threshold, root, rootMargin, hasSupport]
+  );
+
+  return [setNode, entry];
 }
